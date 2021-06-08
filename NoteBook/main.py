@@ -28,10 +28,20 @@ class Application(tk.Tk):
     def __init__(self):
         super().__init__()
 
+        self.protocol('WM_DELETE_WINDOW', self.on_close)
+
         # self.withdraw()
 
-        txt = TextEditor(self)
+        self.txt = txt = TextEditor(self)
         txt.pack(fill=BOTH, expand=1)
+        try:
+            self.txt.load(open('./test.tktxt', 'rb'))
+        except Exception as error:
+            tb.print_exception(type(error), error, error.__traceback__)
+
+    def on_close(self):
+        self.txt.save(open('./test.tktxt', 'wb'))
+        self.destroy()
 
     def load(self) -> None:
         path = sys.argv[1]
