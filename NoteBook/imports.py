@@ -5,6 +5,7 @@ from tkinter import messagebox as mb
 
 import os
 import sys
+import traceback as tb
 
 import zipfile
 import pickle

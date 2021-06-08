@@ -13,8 +13,6 @@ file.zip
 file.tktxt
 
 """
-import sys
-
 from imports import *
 from editors.text import TextEditor
 
@@ -45,15 +43,24 @@ class Application(tk.Tk):
         pass
 
     def run(self):
+        self.after(1000, self.debug)
         self.mainloop()
 
-    def report_callback_exception(self, exc, val, tb):
-        pass
+    def report_callback_exception(self, exctype: type, exception: Exception, traceback: Exception.__traceback__):
+        if isinstance(exception, (SilentError,)): return
+        mb.showerror(
+            title=exctype,
+            message='\n'.join(tb.format_exception(exctype, exception, traceback))
+        )
+
+    def debug(self):
+        raise RuntimeError("Test")
 
 
 def main():
-    app = Application()
-    app.run()
+    try: app = Application()  # build
+    except SilentError: pass  # stop programm
+    else: app.run()  # run programm
 
 
 if __name__ == '__main__':
