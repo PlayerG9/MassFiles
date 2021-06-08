@@ -31,6 +31,7 @@ class TextEditor(tk.Frame):
         bottom.grid(row=2, column=0, columnspan=2, sticky=EW)
 
     def save(self, fp: Union[AnyStr, io.BytesIO]) -> None:
+        # .dump keys: text, mark, tagon, tagoff, image, and window
         pass
 
     def load(self, fp: Union[AnyStr, io.BytesIO]) -> None:

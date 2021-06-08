@@ -17,8 +17,13 @@
 | + settings.json
 ```
 
-## file.tktxt
+## file.tktxt (pickle)
 ```text
-
+(key, value, index)(key, value, index)(key, value, index)
 ```
+Possible keys:
+- tagon / tagoff
+- mark
+- text
+- image
 

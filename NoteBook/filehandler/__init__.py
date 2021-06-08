@@ -8,7 +8,10 @@ class BrokenFile(Exception): pass
 
 
 class FileHandler:
-    def __init__(self, path: Union[AnyStr]):
+    path: str
+
+    def __init__(self):
+        path = FileHandler.path
         if not zf.is_zipfile(path):
             raise InvalidFile(path)
         self._path = path
@@ -18,22 +21,28 @@ class FileHandler:
         self._file.printdir(sys.stderr)
 
     @staticmethod
-    def new(path: Union[AnyStr]) -> "FileHandler":
+    def new() -> "FileHandler":
+        path = FileHandler.path
         if os.path.isfile(path):
             raise FileExistsError(path)
         with zf.ZipFile(path, 'w') as file:
-            for dirname in ('images', 'files'):
+            for dirname in ('images/', 'files/', 'configs/'):
                 file.writestr(dirname, '')
-        return FileHandler(path)
+            # file.writestr('files/file a.txt', 'Erste Datei a')
+            # file.writestr('files/file a/', '')
+            # file.writestr('files/file a/unter b.txt', 'Unterdatei b')
 
-    @property
-    def images(self):
-        return self._file
+    def image(self, name: AnyStr, mode='r'):
+        return self._file.open('images/' + name, mode)
 
-    @property
-    def files(self):
-        return self._file
+    def listdir(self, dirpath: AnyStr, pre='files/'):
+        path = os.path.normpath(os.path.join(pre, dirpath))
+        for filename in self._file.namelist():
+            if os.path.dirname(filename.removesuffix('/')) != path: continue
+            yield filename
 
-    @property
-    def configs(self):
-        return self._file
+    def file(self, name: AnyStr, mode='r'):
+        return self._file.open('files/' + name, mode)
+
+    def config(self, name: AnyStr, mode='r'):
+        return self._file.open('configs/' + name, mode)

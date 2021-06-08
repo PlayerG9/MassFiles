@@ -35,6 +35,7 @@ class Application(tk.Tk):
 
     def load(self) -> None:
         path = sys.argv[1]
+        make_new = False
         if not zf.is_zipfile(path):
             config = dict(
                 defaultextension='.nb',
@@ -43,13 +44,14 @@ class Application(tk.Tk):
             answer = messages.askSomething("Invalid path", "Please select to continue", ['New', 'Open', 'Cancel'], cancel=2)
             if answer == 2: raise SilentError()
             elif answer == 1: path = filedialog.askopenfilename(**config)
-            elif answer == 0: path = filedialog.asksaveasfilename(**config)
+            elif answer == 0:
+                path = filedialog.asksaveasfilename(**config)
+                make_new = True
             else: raise ValueError('invalid selection')
             if not path: raise SilentError()
-        if not os.path.exists(path):
-            file = FileHandler.new(path)
-        else:
-            file = FileHandler(path)
+        FileHandler.path = path
+        if make_new:
+            FileHandler.new()
 
     def run(self) -> None:
         # self.deiconify()

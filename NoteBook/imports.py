@@ -13,9 +13,10 @@ import io
 
 from PIL import Image, ImageTk
 
-from typing import Union, Tuple, Any, List, AnyStr
+from typing import Union, Tuple, Dict, List, AnyStr, Any
 
 from scripts import messages
+from scripts.eventhandler import EventHandler
 
 
 class SilentError(Exception):
