@@ -13,60 +13,16 @@ file.zip
 file.tktxt
 
 """
-
-import tkinter as tk
-from tkinter.constants import *
-from tkinter import filedialog
-from tkinter import messagebox as mb
-# from tkinter import scrolledtext
-
-import os
 import sys
 
-import zipfile
-import pickle
-
-from PIL import Image, ImageTk
+from imports import *
+from editors.text import TextEditor
 
 
-FONTSIZEOPTIONS = (5, 8, 10, 11, 12, 16, 20, 24, 32)
-
-
-class TextWidget(tk.Text):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
-
-
-class TextEditor(tk.Frame):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
-
-        top = tk.Frame(self)
-
-        self.fsize = tk.IntVar(self, value=12)
-        self.fsizew = tk.OptionMenu(top, self.fsize, *FONTSIZEOPTIONS)
-        self.fsizew.grid(row=0, column=0, sticky=NSEW)
-
-        text = TextWidget(self)
-        scroll = tk.Scrollbar(self, command=text.yview)
-        text.configure(yscrollcommand=scroll.set)
-
-        bottom = tk.Frame(self)
-
-        top.grid(row=0, column=0, columnspan=2, sticky=EW)
-        text.grid(row=1, column=0, sticky=NSEW)
-        scroll.grid(row=1, column=1, sticky=NS)
-        bottom.grid(row=2, column=0, columnspan=2, sticky=EW)
-
-    def save(self, fp):
-        pass
-
-    def load(self, fp):
-        pass
-
-
-class ImageEditor(tk.Frame):
-    pass
+if not sys.argv:
+    raise EnvironmentError("invalid sys.argv")
+elif len(sys.argv) < 2:
+    sys.argv.append('./project.nb')
 
 
 class ResourceManager:
@@ -77,6 +33,10 @@ class ResourceManager:
 class Application(tk.Tk):
     def __init__(self):
         super().__init__()
+
+        if not zipfile.is_zipfile(sys.argv[1]):
+            mb.showerror("Invalid file")
+            raise SilentError()
 
         txt = TextEditor(self)
         txt.pack(fill=BOTH, expand=1)
@@ -93,7 +53,6 @@ class Application(tk.Tk):
 
 def main():
     app = Application()
-    app.load()
     app.run()
 
 
