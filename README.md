@@ -13,7 +13,7 @@
 | + hello_world.tktxt
 | + hello_world
 | | + hello_world_child.tktxt
-+ config
++ configs
 | + settings.json
 ```
 

@@ -7,13 +7,15 @@ import os
 import sys
 import traceback as tb
 
-import zipfile
+import zipfile as zf
 import pickle
 import io
 
 from PIL import Image, ImageTk
 
 from typing import Union, Tuple, Any, List, AnyStr
+
+from scripts import messages
 
 
 class SilentError(Exception):
