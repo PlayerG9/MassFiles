@@ -36,6 +36,9 @@ class Application(tk.Tk):
 
         self.protocol('WM_DELETE_WINDOW', self.on_close)
 
+        self.initdir()
+        self.load_plugins()
+
         # self.withdraw()
 
         self.txt = txt = TextEditor(self)
@@ -48,6 +51,20 @@ class Application(tk.Tk):
                 tb.print_exception(type(error), error, error.__traceback__)
 
         EventHandler.register('<on-load>', tload)
+
+    def load_plugins(self):
+        import importlib
+        for filename in os.listdir('./plugins'):
+            fname, fext = os.path.splitext(filename)
+            if fext != '.py': continue
+            if not fname.endswith('_plugin'): continue
+            print("Import-Plugin:", fname)
+            try:
+                plugin = importlib.import_module(f'plugins.{fname}')
+                if hasattr(plugin, 'init'):
+                    plugin.init(self)
+            except Exception as exc:
+                self.report_callback_exception(type(exc), exc, exc.__traceback__)
 
     def on_close(self):
         self.txt.save(open('files/test.tktxt', 'wb'))
@@ -91,10 +108,10 @@ class Application(tk.Tk):
 
     def debug(self):
         # pprint({k: v for k, v in os.environ.items()})
-        pass
+        raise Exception()
 
     def run(self) -> None:
-        self.debug()
+        self.after(1000, self.debug)
         # self.deiconify()
         self.mainloop()
 
@@ -105,13 +122,13 @@ class Application(tk.Tk):
             message='\n'.join(tb.format_exception(exctype, exception, traceback))
         )
 
-    # @staticmethod
-    # def initdir():
-    #     if os.environ.get('PYCHARM_HOSTED'):
-    #         wd = os.path.abspath('./')
-    #     else:
-    #         wd = os.path.dirname(sys.executable)
-    #     os.chdir(wd)
+    @staticmethod
+    def initdir():
+        if os.environ.get('PYCHARM_HOSTED'):
+            wd = os.path.abspath('./')
+        else:
+            wd = os.path.dirname(sys.executable)
+        os.chdir(wd)
 
     @staticmethod
     def workdir():
