@@ -19,11 +19,16 @@
 
 ## file.tktxt (pickle)
 ```text
-(key, value, index)(key, value, index)(key, value, index)
+(key, value, index)
+(key, value, index)
+(key, value, index)
 ```
 Possible keys:
 - tagon / tagoff
+  - followed by tag-data as pydict  
+    example: `{'foreground': 'blue'}`
 - mark
 - text
 - image
-
+  - followed by pydict  
+    `{'filename': 'image.png', 'size': [X, X], 'rotation': int, 'data': bytes}`

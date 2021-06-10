@@ -1,6 +1,6 @@
-import sys
-
 from imports import *
+import shutil
+import atexit
 
 
 class InvalidFile(Exception): pass
@@ -10,15 +10,37 @@ class BrokenFile(Exception): pass
 class FileHandler:
     path: str
 
-    def __init__(self):
+    @staticmethod
+    def test_restore() -> bool:
+        if os.path.isfile('filepath'):
+            with open('filepath', 'r') as file:
+                return file.read()
+        return ''
+
+    @staticmethod
+    def restore():
+        p = getattr(FileHandler, 'path', None)  # save for later
+        with open('filepath', 'r') as file:
+            FileHandler.path = file.read()  # read old path
+        FileHandler.close()  # save data and clear memory
+        FileHandler.path = p  # restore dir
+
+    @staticmethod
+    def open():
         path = FileHandler.path
         if not zf.is_zipfile(path):
             raise InvalidFile(path)
-        self._path = path
-        self._file = zf.ZipFile(path, 'a', compression=zf.ZIP_DEFLATED)
-        if self._file.testzip():
+
+        file = zf.ZipFile(path, 'r', compression=zf.ZIP_DEFLATED, compresslevel=9)
+        if file.testzip():
             raise BrokenFile(path)
-        self._file.printdir(sys.stderr)
+        file.printdir(sys.stderr)
+
+        file.extractall('./')  # todo need to improved to extractmember + update-callback
+        with open('./filepath', 'w') as file:
+            file.write(path)
+
+        atexit.register(FileHandler.close)
 
     @staticmethod
     def new() -> "FileHandler":
@@ -26,23 +48,35 @@ class FileHandler:
         if os.path.isfile(path):
             raise FileExistsError(path)
         with zf.ZipFile(path, 'w') as file:
-            for dirname in ('images/', 'files/', 'configs/'):
+            for dirname in ('files/', 'configs/'):
                 file.writestr(dirname, '')
-            # file.writestr('files/file a.txt', 'Erste Datei a')
-            # file.writestr('files/file a/', '')
-            # file.writestr('files/file a/unter b.txt', 'Unterdatei b')
+            default_data = {
+                'comment': '',
+                'createtime': '',
+                'author': os.environ.get('USERNAME', None)
+            }
+            file.writestr('project.json', json.dumps(default_data))
 
-    def image(self, name: AnyStr, mode='r'):
-        return self._file.open('images/' + name, mode)
+    @staticmethod
+    def fileimport(source: str, dist: str):
+        shutil.copy(source, dist)
 
-    def listdir(self, dirpath: AnyStr, pre='files/'):
-        path = os.path.normpath(os.path.join(pre, dirpath))
-        for filename in self._file.namelist():
-            if os.path.dirname(filename.removesuffix('/')) != path: continue
-            yield filename
+    @staticmethod
+    def save():
+        path = FileHandler.path
+        file = zf.ZipFile(path, 'w', compression=zf.ZIP_DEFLATED, compresslevel=9)
+        start = os.path.abspath('./')
+        for root, dirs, files in os.walk(start):
+            for fname in files:
+                fpath = os.path.join(root, fname)
+                apath = os.path.relpath(fpath, start)
+                file.write(fpath, apath)
 
-    def file(self, name: AnyStr, mode='r'):
-        return self._file.open('files/' + name, mode)
+    @staticmethod
+    def clearup():
+        shutil.rmtree('./', ignore_errors=True, onerror=lambda *a: tb.print_exception(*a))
 
-    def config(self, name: AnyStr, mode='r'):
-        return self._file.open('configs/' + name, mode)
+    @staticmethod
+    def close():
+        FileHandler.save()
+        FileHandler.clearup()
