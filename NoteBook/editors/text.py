@@ -107,7 +107,8 @@ class TextEditor(tk.Frame):
                     if value not in DEFAULT_TAGS:  # prevent override from default-tags
                         text.tag_configure(value, **got)
                 elif key == 'mark':
-                    text.mark_set(value, index)
+                    continue
+                    # text.mark_set(value, index)
                 elif key == 'image':
                     imgdata: Dict[str, Union[str, Tuple[int, int], bytes]] = pickle.load(fp)
                     self.images[value] = imgdata

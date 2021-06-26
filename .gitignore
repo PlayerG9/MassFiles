@@ -1,3 +1,11 @@
+# ignore
+build/build/
+build/dist/
+workdir/
+temp/
+
+20180504_161326(0).jpg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -10,7 +18,7 @@ __pycache__/
 .Python
 # build/
 develop-eggs/
-dist/
+# dist/
 downloads/
 eggs/
 .eggs/

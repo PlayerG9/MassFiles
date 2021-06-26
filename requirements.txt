@@ -1,1 +1,4 @@
 Pillow
+tkinterdnd2
+tkinterweb
+markdown

@@ -9,30 +9,33 @@ from os.path import abspath, join
 
 print("CWD:", os.getcwd())
 import subprocess
-import datetime
-import json
 
 
-BUILD = r'.\build'
-CODE = r'.\NoteBook'
+APPNAME = "NoteBook"
+
+BUILD = abspath(r'.\build')
+CODE = abspath(r'.\NoteBook')
+TARGET = join(BUILD, 'dist', APPNAME)
 
 CMD = [
     abspath(r'.\_venv\Scripts\pyinstaller.exe'),
     '--noconfirm',
     '--clean',
-    '--distpath', abspath(join(BUILD, 'dist')),
-    '--workpath', abspath(join(BUILD, 'build')),
-    '--specpath', abspath(join(BUILD, 'build')),
+    '--distpath', join(BUILD, 'dist'),
+    '--workpath', join(BUILD, 'build'),
+    '--specpath', join(BUILD, 'build'),
 
-    '--runtime-hook', abspath(join(BUILD, 'sources', r'.\hooker.py')),
+    '--runtime-hook', join(BUILD, 'sources', r'.\hooker.py'),
     # '--version-file', os.path.abspath('./temp/build/version-file.py'),
-    '--icon', abspath(join(BUILD, 'sources', r'.\logo.ico')),
+    '--icon', join(BUILD, 'sources', r'.\logo.ico'),
     '--windowed',
     # '--hidden-import', '',
     # '--add-data', f'{os.path.abspath("./memory")};memory',
+    # '--add-data', f'{CODE};NoteBook',
 
-    '--name', 'NoteBook',
-    abspath(join(CODE, r'.\main.py'))
+
+    '--name', APPNAME,
+    abspath('runner.py')
 ]
 pprint(CMD)
 
@@ -40,7 +43,25 @@ p = subprocess.run(CMD)
 if p.returncode != 0:
     sys.exit(p.returncode)
 
-nwk = os.path.abspath(os.path.join(BUILD, 'dist', 'NoteBook'))
+
+import py_compile
+BASE = './NoteBook'
+os.mkdir(join(TARGET, APPNAME))
+for root, dirs, files in os.walk(BASE):
+    if root.endswith(('__pycache__', 'plugins')): continue
+    rel = os.path.relpath(root, BASE)
+    for dir in dirs:
+        if dir == '__pycache__': continue
+        os.mkdir(abspath(join(TARGET, APPNAME, rel, dir)))
+    for file in files:
+        n, e = os.path.splitext(file)
+        if e != '.py': continue
+        if n.startswith('test'): continue
+        newname = n + '.pyc'
+        py_compile.compile(join(root, file), abspath(join(TARGET, APPNAME, rel, newname)))
+
+
+nwk = os.path.abspath(TARGET)
 os.chdir(nwk)
 print("CWD:", os.getcwd())
 LIBDIR = 'lib'
