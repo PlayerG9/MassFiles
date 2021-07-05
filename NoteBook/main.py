@@ -35,7 +35,7 @@ FILEASKCONFIG = dict(
 class Application(tkdnd.Tk):
     def __init__(self):
         super().__init__()
-        self.withdraw()
+        # self.withdraw()
 
         self.protocol('WM_DELETE_WINDOW', self.on_close)
 
@@ -51,6 +51,15 @@ class Application(tkdnd.Tk):
         self.load_plugins()
 
         self.build_menu()
+
+        center_window(self, 0.5, 0.5)
+
+        def build():
+            editor: tk.Widget = self.plugins['markdown_plugin'].MarkdownEditor(self)
+            editor.place(relwidth=1.0, relheight=1.0)
+            editor.load('')
+
+        EventHandler.register('<On-Load>', build)
 
         # self.withdraw()
 
@@ -68,10 +77,15 @@ class Application(tkdnd.Tk):
 
     def load_plugins(self):
         import importlib
-        PLUGINDIR = './plugins'
+        from os.path import isdir, isfile, join
+        PLUGINDIR = os.path.join(APPDIR, 'plugins')
         for filename in os.listdir(PLUGINDIR):
-            fname, fext = os.path.splitext(filename)
-            if fext != '.py': continue
+            if isdir(join(PLUGINDIR, filename)):
+                if not isfile(join(PLUGINDIR, filename, '__init__.py')): continue
+                fname = filename
+            else:
+                fname, fext = os.path.splitext(filename)
+                if fext != '.py': continue
             if not fname.endswith('_plugin'): continue
             print("Import-Plugin:", fname)
             try:
@@ -93,10 +107,11 @@ class Application(tkdnd.Tk):
 
         to_restore = FileHandler.test_restore()
         if to_restore:
-            answer = mb.askyesno("", f"Allready opened project found.\n{to_restore}\n Should it be restored?")
-            if answer is None:
-                raise SilentError()
-            elif answer:
+            # bug but with tk.messagebox before mainloop
+            msg = f"Allready opened project found.\n{to_restore}\n Should it be restored before loading new project?"
+            answer = PyMessageBox.MessageBox("", msg, PyMessageBox.ASK | PyMessageBox.YES_NO)
+
+            if answer == 'YES':
                 FileHandler.restore()
             else:
                 FileHandler.clearup()
@@ -121,7 +136,7 @@ class Application(tkdnd.Tk):
             else: raise ValueError('invalid selection')
             FileHandler.open()
 
-        EventHandler.invoke('<on-load>')
+        EventHandler.invoke('<On-Load>')
 
     def debug(self):
         # pprint({k: v for k, v in os.environ.items()})
@@ -131,12 +146,12 @@ class Application(tkdnd.Tk):
     def run(self) -> None:
         self.after(1000, self.debug)
         # self.deiconify()
-        self.state('normal')
+        # self.state('normal')
         self.mainloop()
 
     def report_callback_exception(self, exctype: type, exception: Exception, traceback: tb.TracebackException) -> None:
         if isinstance(exception, (SilentError,)): return
-        mb.showerror(
+        messagebox.showerror(
             title=exctype,
             message='\n'.join(tb.format_exception(exctype, exception, traceback))
         )

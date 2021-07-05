@@ -1,0 +1,2 @@
+class AnimationHandler:
+    pass

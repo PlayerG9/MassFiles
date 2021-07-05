@@ -26,6 +26,7 @@ CMD = [
     '--specpath', join(BUILD, 'build'),
 
     '--runtime-hook', join(BUILD, 'sources', r'.\hooker.py'),
+    '--additional-hooks-dir', join(BUILD, 'sources'),
     # '--version-file', os.path.abspath('./temp/build/version-file.py'),
     '--icon', join(BUILD, 'sources', r'.\logo.ico'),
     '--windowed',
@@ -61,13 +62,16 @@ for root, dirs, files in os.walk(BASE):
         py_compile.compile(join(root, file), abspath(join(TARGET, APPNAME, rel, newname)))
 
 
-nwk = os.path.abspath(TARGET)
-os.chdir(nwk)
+WD = os.path.abspath(TARGET)
+os.chdir(WD)
 print("CWD:", os.getcwd())
 LIBDIR = 'lib'
 DLLDIR = 'windll'
 os.mkdir(LIBDIR)
 os.mkdir(DLLDIR)
+os.mkdir('plugins')
+
+os.replace(join(WD, 'tkinterweb'), join(LIBDIR, 'tkinterweb'))
 
 for filename in os.listdir('./'):
     if os.path.isdir(filename): continue
