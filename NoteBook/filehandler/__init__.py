@@ -64,6 +64,7 @@ class FileHandler:
     @staticmethod
     def save():
         path = FileHandler.path
+        os.remove('./filepath')
         file = zf.ZipFile(path, 'w', compression=zf.ZIP_DEFLATED, compresslevel=9)
         start = os.path.abspath('./')
         for root, dirs, files in os.walk(start):

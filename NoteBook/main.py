@@ -40,6 +40,8 @@ class Application(tkdnd.Tk):
         self.protocol('WM_DELETE_WINDOW', self.on_close)
 
         self.option_add('*Button.cursor', 'hand2')
+        self.option_add('*Font', ['Arial', 11])
+        self.option_add('*Menu.Font', ['Segoe UI', 9])
 
         icodata = base64.standard_b64decode(PYIMAGEDATA)
         self.ico = tk.PhotoImage(master=self, data=icodata)
@@ -52,13 +54,14 @@ class Application(tkdnd.Tk):
 
         self.build_menu()
 
-        center_window(self, 0.5, 0.5)
+        center_window(self, 0.666, 0.666)
 
         def build():
-            editor: tk.Widget = self.plugins['markdown_plugin'].MarkdownEditor(self)
-            editor.place(relwidth=1.0, relheight=1.0)
-            editor.load('')
+            from interfacehandler.single import Handler
 
+            w = Handler(self)
+            w.place(relwidth=1.0, relheight=1.0)
+            # editor.load('')
         EventHandler.register('<On-Load>', build)
 
         # self.withdraw()
@@ -98,6 +101,7 @@ class Application(tkdnd.Tk):
 
     def on_close(self):
         # self.txt.save(open('files/test.tktxt', 'wb'))
+        EventHandler.invoke('<On-Close>')
         self.destroy()
 
     def load(self) -> None:

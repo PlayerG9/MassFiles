@@ -1,4 +1,4 @@
-filehandler = {}
+__filehandler = {}
 
 
 class RegisterError(Exception):
@@ -6,10 +6,10 @@ class RegisterError(Exception):
 
 
 def register_filehandler(fileext: str, handler: callable, force=False):
-    if fileext in filehandler and not force:
+    if fileext in __filehandler and not force:
         raise RegisterError('{!r} is allready registered'.format(fileext))
 
-    filehandler[fileext] = handler
+    __filehandler[fileext] = handler
 
 
 def open2(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True):
@@ -24,3 +24,10 @@ def open2(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None
     file = abspath(join(basedir, file))
 
     return open(file, mode, buffering, encoding, errors, newline, closefd)
+
+
+def local():
+    r"""
+    returns path to current package
+    """
+    pass
