@@ -2,7 +2,7 @@
  Editor to manage a complex Project
  [View Website](https://playerg9.github.io/MassFiles/)
 
-![Python](README.assets/Python.png)
+![Python](https://raw.githubusercontent.com/PlayerG9/MassFiles/main/README.assets/icon.png)
 
 
 # FileStructure
